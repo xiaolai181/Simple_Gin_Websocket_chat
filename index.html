@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+   <meta charset="utf-8">
+   <title>test</title>
+    <style>
+    
+    </style>
+      <script type="text/javascript">
+        var data = {
+            type : "300",
+            content : "默认内容",
+            sender : "默认发送者",
+            receiver : "默认接收者",
+        }
+       var me = "wo";
+       var you = "ni";
+       var list = [];
+        var ws = new WebSocket("ws://localhost:8080/ws");
+        ws.onopen = function()
+               {
+
+                data.type = "100";
+                data.content = "登录";
+                data.sender = "";
+                data.receiver = "";
+                logindata = JSON.stringify(data);
+                  // Web Socket 已连接上，使用 send() 方法发送数据
+                  ws.send(logindata);
+               };
+        ws.onmessage = function(evt) {
+                console.log( "Received Message: " + evt.data);
+                  var data = JSON.parse(evt.data);
+                  if(data.type == "100"){
+                    console.log("登录成功");
+                    me = data.content;
+                    document.getElementById("sender").value = me;
+                  }
+                  //用户列表
+                  if (data.type == 101){
+                    list = data.content.split(",");
+                    console.log(list);
+                    var select = document.getElementById("receiver");
+                    //清空
+                    select.options.length = 0;
+                    for(var i = 0; i < list.length; i++){
+                      if (list[i] != me){
+                        var option = document.createElement("option");
+                        option.text = list[i];
+                        option.value = list[i];
+                        select.add(option);
+                      }
+                    }
+                  }
+                  if(data.type == "200"){
+                    console.log("接收到消息");
+                    //更新id为chat的textarea中的内容
+                    document.getElementById("chat").value = document.getElementById("chat").value +"\r\n"+data.sender+" : " +data.content;
+                  }
+                
+            };
+         ws.onclose = function()
+                {
+                     // 关闭 websocket
+                     alert("连接已关闭...");
+                };
+        function stop() {
+            ws.close();
+        }
+        function send(){
+            data.type = "300";
+            data.content = document.getElementById("content").value;
+            data.sender = document.getElementById("sender").value;
+            data.receiver = document.getElementById("receiver").value;
+
+            logindata = JSON.stringify(data);
+            ws.send(logindata);
+        }
+      </script>
+        
+   </head>
+   <body>
+      
+      <div>
+         <textarea id="chat" rows="20" cols="100"></textarea>
+      </div>
+      <textarea  id="content" type="text"rows="3" cols="50">hello</textarea>
+      <div>
+        <input id="sender" type="text" value="默认发送者">
+        <select id="receiver" >
+          <option value="无人在线">无人在线</option>
+        </select>
+        <button onclick="send()">发送</button>
+        <button onclick="stop()">关闭</button>
+      </div>
+   </body>
+</html>
