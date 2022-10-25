@@ -25,8 +25,7 @@ type Message struct {
 	Receiver string `json:"receiver"`
 }
 
-//描述的英文
-
+//自定义消息
 func ResponseMessage(Type, str, sender, receiver string) []byte {
 	msg := &Message{
 		Type:     "400",
@@ -41,6 +40,8 @@ func ResponseMessage(Type, str, sender, receiver string) []byte {
 	msgByte, _ := json.Marshal(msg)
 	return msgByte
 }
+
+//登录成功
 func LogionSuccessMessage(uuid string) []byte {
 	msg := &Message{
 		Type:     "100",
@@ -52,7 +53,7 @@ func LogionSuccessMessage(uuid string) []byte {
 	return msgByte
 }
 
-//返回在线用户列表
+//在线用户列表
 func LoginUserListMessage() []byte {
 	content := ""
 	for _, v := range manager.Clients {
